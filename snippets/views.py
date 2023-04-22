@@ -1,58 +1,36 @@
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import status
+from rest_framework import mixins
+from rest_framework import generics
 from snippets.models import Snippet
 from snippets.serializers import SnippetSerializer
-from django.http import Http404
 
 
-class SnippetList(APIView):
+class SnippetList(generics.GenericAPIView, mixins.CreateModelMixin, mixins.ListModelMixin):
     """"""
-    def get(self, request, format=None):
+    queryset = Snippet.objects.all()
+    serializer_class = SnippetSerializer
+
+    def get(self, request, *args, **kwargs):
         """"""
-        snippets = Snippet.objects.all()
-        serializer = SnippetSerializer(snippets, many=True)
-        return Response(serializer.data)
+        return self.list(self, request, *args, **kwargs)
 
-    def post(self, request, format=None):
+    def post(self, request, *args, **kwargs):
         """"""
-        serializer = SnippetSerializer(data=request.data)
-        # request.data can handle other other formats beyond json
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-            # returning response with data but allowing DRF to render into correct type
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)               
+        return self.create(self, request, *args, **kwargs)
 
 
-class SnippetDetail(APIView):
+class SnippetDetail(generics.GenericAPIView, mixins.DestroyModelMixin, mixins.UpdateModelMixin, mixins.RetrieveModelMixin):
     """"""
-    def get_object(self, pk):
-        """"""
-        try:
-            return Snippet.objects.get(pk=pk)
-        except Snippet.DoesNotExist:
-            raise Http404
+    queryset = Snippet.objects.all()
+    serializer_class = SnippetSerializer
 
-    def get(self, request, pk, format=None):
+    def get(self, request, *args, **kwargs):
         """"""
-        snippet = self.get_object(pk=pk)
-        serializer = SnippetSerializer(snippet)
-        return Response(serializer.data)
+        self.retrieve(self, request, *args, **kwargs)
 
-    def put(self, request, pk, format=None):
+    def put(self, request, *args, **kwargs):
         """"""
-        snippet = self.get_object(pk=pk)
-        serializer = SnippetSerializer(snippet, data=request.data)
-        # request.data can handle other other formats beyond json
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-            # returning response with data but allowing DRF to render into correct type
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        self.update(self, request, *args, **kwargs)
 
-    def delete(self, request, pk, format=None):
+    def delete(self, request, *args, **kwargs):
         """"""
-        snippet = self.get_object(pk=pk)
-        snippet.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        self.destroy(self, request, *args, **kwargs)
