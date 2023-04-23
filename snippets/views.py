@@ -11,36 +11,38 @@ from django.contrib.auth.models import User
 
 
 class SnippetList(generics.ListCreateAPIView):
-    """"""
+    """View for snippets list."""
     queryset = Snippet.objects.all()
     serializer_class = SnippetSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
     def perform_create(self, serializer):
+        """Map request's user to owner."""
         serializer.save(owner=self.request.user)
 
 
 class SnippetDetail(generics.RetrieveUpdateDestroyAPIView):
-    """"""
+    """View for snippet detail."""
     queryset = Snippet.objects.all()
     serializer_class = SnippetSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
 
 
 class UserList(generics.ListAPIView):
-    """"""
+    """View for users list."""
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
 
 class UserDetail(generics.RetrieveAPIView):
-    """"""
+    """View for user detail."""
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
 
 @api_view(["GET"])
 def api_root(request, format=None):
+    """View for api root url."""
     return Response(
         {
             "users": reverse("user-list", request=request, format=format),
@@ -51,7 +53,7 @@ def api_root(request, format=None):
 
 
 class SnippetHighlight(generics.GenericAPIView):
-    """"""
+    """View for snippets highlight."""
     queryset = Snippet.objects.all()
     renderer_classes = [renderers.StaticHTMLRenderer]
     # pre-rendered HTML

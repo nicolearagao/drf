@@ -9,7 +9,7 @@ LANGUAGE_CHOICES = sorted([(item[1][0], item[0]) for item in LEXERS])
 STYLE_CHOICES = sorted([(item, item) for item in get_all_styles()])
 
 class Snippet(models.Model):
-
+    """Model for Snippets."""
     created = models.DateTimeField(auto_now_add=True)
     title = models.CharField(max_length=100, default="", blank=True)
     code = models.TextField()
@@ -21,6 +21,7 @@ class Snippet(models.Model):
     highlighted = models.TextField(default="")
 
     def save(self, *args, **kwargs):
+        """Define code to be highlighted before saving."""
         """
             Use the `pygments` library to create a highlighted HTML
             representation of the code snippet.
@@ -35,5 +36,3 @@ class Snippet(models.Model):
 
     class Meta:
         ordering = ["created"]
-
-
